@@ -7,6 +7,7 @@ function startInterval() {
 }
 
 async function saveTime() {
+  this.nothingToDelete = false
   const time = this.currentTime
   const res = await fetch('http://localhost:5555/times', {
     method: 'POST',
@@ -22,10 +23,14 @@ async function saveTime() {
   }
 }
 
-async function deleteTime(id) {
-  const res = await fetch(`http://localhost:5555/time/${id}`, {
+async function deleteOneItem(id) {
+  return await fetch(`http://localhost:5555/time/${id}`, {
     method: 'DELETE',
   })
+}
+
+async function deleteTime(id) {
+  const res = deleteOneItem(id)
   const json = await res.json()
   if (json.affectedRows) {
     this.savedTimes = this.savedTimes.filter((savedTime) => savedTime.id !== id)
@@ -35,4 +40,24 @@ async function deleteTime(id) {
   }
 }
 
-export { startInterval, saveTime, deleteTime }
+async function deleteAll() {
+  if (this.savedTimes.length === 0) {
+    this.nothingToDelete = true
+    setTimeout(() => {
+      this.nothingToDelete = false
+    }, 5 * 1000)
+    return
+  }
+  this.nothingToDelete = false
+  this.deleteInProgress = true
+  let currentItem = null
+  while(1) {
+    if (this.savedTimes.length === 0) break
+    currentItem = this.savedTimes[0]
+    await deleteOneItem(currentItem.id)
+    this.savedTimes.splice(0, 1)
+  }
+  this.deleteInProgress = false
+}
+
+export { startInterval, saveTime, deleteTime, deleteOneItem, deleteAll }

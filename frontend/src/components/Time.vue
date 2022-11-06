@@ -1,6 +1,33 @@
+<template>
+  <div class="greetings">
+    <h1 class="green">{{ currentTime }}</h1>
+    <h3>Нажмите кнопку для сохранения в базе данных</h3>
+    <button @click="saveTime">Сохранить время</button>
+    <button class="bg-red" @click="deleteAll()">
+      Удалить все записи
+    </button>
+    <h3 v-if="savedTimes.length && showSavedTimes">
+      Ранее сохраненные времена:
+    </h3>
+    <h4 v-show="deleteInProgress">Удаление в процессе...</h4>
+    <h4 v-show="nothingToDelete">Удалять нечего!</h4>
+    <div
+        v-if="showSavedTimes"
+        class="deleted-items"
+        v-for="savedTime in savedTimes"
+        :key="savedTime.id"
+    >
+      <div class="deleted-item">{{ savedTime.time }}</div>
+      <button class="btn-sm bg-red" @click="() => deleteTime(savedTime.id)">
+        Удалить
+      </button>
+    </div>
+  </div>
+</template>
+
 <script>
 import moment from 'moment'
-import { startInterval, saveTime, deleteTime } from '../utils/time'
+import {startInterval, saveTime, deleteTime, deleteAll} from '../utils/time'
 
 export default {
   props: {
@@ -10,12 +37,15 @@ export default {
     return {
       currentTime: moment().format('HH:mm:ss'),
       savedTimes: [],
+      deleteInProgress: false,
+      nothingToDelete: false
     }
   },
   methods: {
     startInterval,
     saveTime,
     deleteTime,
+    deleteAll
   },
   created: async function () {
     this.startInterval()
@@ -25,28 +55,6 @@ export default {
   },
 }
 </script>
-
-<template>
-  <div class="greetings">
-    <h1 class="green">{{ currentTime }}</h1>
-    <h3>Нажмите кнопку для сохранения в базе данных</h3>
-    <button @click="saveTime">Сохранить время</button>
-    <h3 v-if="savedTimes.length && showSavedTimes">
-      Ранее сохраненные времена:
-    </h3>
-    <div
-      v-if="showSavedTimes"
-      class="deleted-items"
-      v-for="savedTime in savedTimes"
-      :key="savedTime.id"
-    >
-      <div class="deleted-item">{{ savedTime.time }}</div>
-      <button class="btn-sm bg-red" @click="() => deleteTime(savedTime.id)">
-        Удалить
-      </button>
-    </div>
-  </div>
-</template>
 
 <style scoped>
 h1 {
