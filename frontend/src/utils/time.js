@@ -41,7 +41,13 @@ async function deleteTime(id) {
 }
 
 async function deleteAll() {
-  if (checkIfEmpty()) return
+  if (this.savedTimes.length === 0) {
+    this.nothingToDelete = true
+    setTimeout(() => {
+      this.nothingToDelete = false
+    }, 5 * 1000)
+    return
+  }
 
   this.nothingToDelete = false
   this.deleteInProgress = true
@@ -54,17 +60,6 @@ async function deleteAll() {
   }
 
   this.deleteInProgress = false
-}
-
-function checkIfEmpty() {
-  if (this.savedTimes.length === 0) {
-    this.nothingToDelete = true
-    setTimeout(() => {
-      this.nothingToDelete = false
-    }, 5 * 1000)
-    return true
-  }
-  return false
 }
 
 export { startInterval, saveTime, deleteTime, deleteOneItem, deleteAll }
