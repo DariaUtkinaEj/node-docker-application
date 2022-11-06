@@ -30,7 +30,7 @@ async function deleteOneItem(id) {
 }
 
 async function deleteTime(id) {
-  const res = deleteOneItem(id)
+  const res = await deleteOneItem(id)
   const json = await res.json()
   if (json.affectedRows) {
     this.savedTimes = this.savedTimes.filter((savedTime) => savedTime.id !== id)
@@ -41,13 +41,8 @@ async function deleteTime(id) {
 }
 
 async function deleteAll() {
-  if (this.savedTimes.length === 0) {
-    this.nothingToDelete = true
-    setTimeout(() => {
-      this.nothingToDelete = false
-    }, 5 * 1000)
-    return
-  }
+  if (checkIfEmpty()) return
+
   this.nothingToDelete = false
   this.deleteInProgress = true
   let currentItem = null
@@ -57,7 +52,19 @@ async function deleteAll() {
     await deleteOneItem(currentItem.id)
     this.savedTimes.splice(0, 1)
   }
+
   this.deleteInProgress = false
+}
+
+function checkIfEmpty() {
+  if (this.savedTimes.length === 0) {
+    this.nothingToDelete = true
+    setTimeout(() => {
+      this.nothingToDelete = false
+    }, 5 * 1000)
+    return true
+  }
+  return false
 }
 
 export { startInterval, saveTime, deleteTime, deleteOneItem, deleteAll }
